@@ -1,0 +1,18 @@
+# Normaliza todos los archivos de texto a LF en el repo
+* text=auto eol=lf
+
+# Archivos específicos de Windows (por ejemplo, scripts .bat)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Archivos binarios: nunca convertir finales de línea
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.exe binary
+*.dll binary
+*.pyc binary

@@ -1,0 +1,36 @@
+🌐 Descripción general
+La aplicación es una plataforma de micro-blogging al estilo de un “mini Twitter” sin frontend propio.
+Permite que cualquier persona pueda registrarse, iniciar sesión y publicar mensajes cortos, que otros usuarios podrán leer y comentar.
+Todo se gestiona a través de una API REST, de modo que después podrías agregarle un frontend web o una app móvil.
+
+👥 Roles
+> Usuario anónimo (no autenticado):
+    > Puede ver el listado público de posts y los comentarios de cada post.
+    > Puede buscar y filtrar posts (por ejemplo por palabra clave o autor).
+> Usuario registrado (autenticado):
+    > Todo lo del usuario anónimo más:
+        > Crear cuenta y autenticarse (login/logout con tokens JWT).
+        > Publicar posts (texto, título opcional).
+        > Editar o eliminar sus propios posts.
+        > Comentar posts de otros.
+        > Editar o eliminar sus propios comentarios.
+        > (Opcional) Dar “like” o quitar “like” a un post.
+
+🛠️ Acciones principales que soporta la API
+Acción	                    Descripción	                                                                        Quién puede
+Listar posts	            Ver todos los posts existentes, paginados y ordenados (por fecha, autor, etc.).	    Cualquiera
+Ver detalle de un post	    Título, contenido, autor, fecha, número de comentarios/likes.	                    Cualquiera
+Crear post	                Enviar título y contenido para publicar un nuevo mensaje.	                        Usuario autenticado
+Editar/Borrar post	        Modificar o eliminar un post propio.	                                            Autor del post
+Comentar post	            Agregar un comentario a un post.	                                                Usuario autenticado
+Editar/Borrar comentario	Modificar o eliminar un comentario propio.	                                        Autor del comentario
+Buscar/filtrar	            Buscar posts por palabra clave, filtrar por autor o rango de fechas.	            Cualquiera
+Likes (opcional)	        Marcar “me gusta” o quitarlo.	                                                    Usuario autenticado
+
+🔑 Ejemplo de uso típico
+1. María se registra y obtiene un token de acceso.
+2. Publica un post: “¡Empezando mi proyecto con Django REST!”
+3. Juan, sin registrarse, puede leer ese post desde la lista pública.
+4. Si Juan quiere comentar, primero se registra/inicia sesión.
+5. Juan deja un comentario: “¡Éxitos con tu proyecto!”
+6. María ve el comentario, responde o le da “like”.
