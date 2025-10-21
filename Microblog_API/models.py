@@ -9,8 +9,9 @@ class Post(models.Model):
     updated_at = models.DateField(auto_now_add=True)
     
     class Meta:
-        verbose_name = "Post"
-        verbose_name_plural = "Posts"
+        db_table = 'Post'
+        verbose_name = 'Post'
+        verbose_name_plural = 'Posts'
         ordering = ['author']
         
     def __str__(self):
@@ -23,8 +24,9 @@ class Comment(models.Model):
     created_at = models.DateField(auto_now_add=True)
     
     class Meta:
-        verbose_name = "Comment"
-        verbose_name_plural = "Comments"
+        db_table = 'Comment'
+        verbose_name = 'Comment'
+        verbose_name_plural = 'Comments'
         ordering = ['author']
         
     def __str__(self):

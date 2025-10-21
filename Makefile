@@ -23,4 +23,4 @@ show_urls:
 	docker-compose exec web python manage.py show_urls
 
 inspect_db:
-	winpty docker exec -it web-market-tracer-db-1 psql -U postgres -d postgres
+	winpty docker exec -it microblog_api-db-1 psql -U postgres -d postgres
