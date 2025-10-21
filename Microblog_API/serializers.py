@@ -65,16 +65,26 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id','username','email')
 
 class PostSerializer(serializers.ModelSerializer):
+    author = serializers.CharField(source = "author.username", read_only = True)
+    number_of_comments = serializers.SerializerMethodField()
+    
     class Meta:
         model = Post
-        fields = ('id', 'author', 'title', 'content', 'created_at', 'updated_at') # Qué atributos se incluirán en el JSON
-        read_only_fields = ('author','created_at',) # Estos campos no es necesario pasarlos en el Body, solo se pasa 'content' ya que el author, post y created_at se generan automáticamente
+        fields = ('id', 'author', 'title', 'content', 'created_at', 'updated_at', 'number_of_comments') # Qué atributos se incluirán en el JSON
+        read_only_fields = ('created_at',) # There is no need to pass these fields in the Body, only content is specified because author, post and created_at are automatically generated
+        
+    def get_number_of_comments(self, obj):
+        # Since related_name="comments" was defined in the Comment model, 'comments' can be used here.
+        return obj.comments.count()
 
 class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.CharField(source = "author.username", read_only = True)
+    post_id = serializers.IntegerField(source = "post.id", read_only = True)
+    
     class Meta:
         model = Comment
-        fields = ('id','author','post','content','created_at')
-        read_only_fields = ('author','post','created_at',)
+        fields = ('id','author','post_id','content','created_at')
+        read_only_fields = ('created_at',)
         
     def update(self, instance, validated_data):
         instance.content = validated_data.get('content', instance.content)

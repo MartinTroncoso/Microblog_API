@@ -1,4 +1,4 @@
-# Makefile para GitBash
+# Makefile for GitBash
 up:
 	docker-compose build
 	docker-compose up

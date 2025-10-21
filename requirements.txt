@@ -1,5 +1,7 @@
 Django>=4.2
 djangorestframework
+djangorestframework_simplejwt
+django-filter
 psycopg2-binary
 python-dateutil
 schedule

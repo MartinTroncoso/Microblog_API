@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import Post, Comment
 from django.contrib.auth.models import User
 from .serializers import UserSerializer, PostSerializer, LoginSerializer, RegisterSerializer, CommentSerializer
@@ -11,6 +12,12 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     permission_classes = [permissions.AllowAny]
     serializer_class = UserSerializer
+    
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [permissions.AllowAny()]
+        else:
+            return [permissions.IsAdminUser()]
 
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -66,7 +73,8 @@ class RegisterViewSet(viewsets.ModelViewSet):
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['author']
     search_fields = ['title', 'content']  # campos donde se puede buscar
     ordering_fields = ['created_at', 'title']  # campos por los que se puede ordenar
     ordering = ['-created_at']  # orden por defecto    
@@ -92,11 +100,6 @@ class PostViewSet(viewsets.ModelViewSet):
     #     return Post.objects.filter(author=self.request.user)
     
 class CommentView(APIView):
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['title', 'content']  # campos donde se puede buscar
-    ordering_fields = ['created_at', 'title']  # campos por los que se puede ordenar
-    ordering = ['-created_at']  # orden por defecto
-    
     # Solo se pueden agregar comentarios estando autenticado, pero se pueden ver todos sin estarlo.
     def get_permissions(self):
         if self.request.method in ["POST","PUT","PATCH","DELETE"]:
@@ -139,7 +142,7 @@ class CommentView(APIView):
         
         if comment.author != request.user:
             return Response({
-                "detail": "You can not edit another user's comment"
+                "detail": "You can't edit another user's comment"
             }, status = status.HTTP_403_FORBIDDEN)
             
         serializer = CommentSerializer(comment, data = request.data)
@@ -154,7 +157,7 @@ class CommentView(APIView):
         
         if comment.author != request.user:
             return Response({
-                "detail": "You can not delete another user's comment"
+                "detail": "You can't delete another user's comment"
             }, status = status.HTTP_403_FORBIDDEN)
             
         comment.delete()
