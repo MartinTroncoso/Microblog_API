@@ -17,8 +17,9 @@ Its use is very simple and straightforward, below you can find a breakdown of th
     * POST /api/posts/\<id>/comments/ → create comment (authentication required - another user's posts can be commented)
     * PUT /api/posts/\<id>/comments/\<id> → edit comment (authentication required)
     * DELETE /api/comments/\<id>/ → delete comment (only author)
-* (TO-DO) Likes
+* Likes
     * POST /api/posts/\<id>/like/ → mark/unmark like
+    * GET /api/posts/\<id>/likes/ -> see all the users that liked the post
  
 JSON Web Token (JWT) was used for authentication. When doing POST /api/login, both a refresh and access token will be provided. The 'access' token will expire after 5 minutes, thus a new one will be needed. You can get it by sending the request '**POST /api/token/refresh**' passing the 'refresh' token in the Body.
 
