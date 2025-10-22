@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Post, Comment
 from django.contrib.auth.models import User
@@ -75,9 +76,9 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['author']
-    search_fields = ['title', 'content']  # campos donde se puede buscar
-    ordering_fields = ['created_at', 'title']  # campos por los que se puede ordenar
-    ordering = ['-created_at']  # orden por defecto    
+    search_fields = ['title', 'content']  # fields where you can search for key words
+    ordering_fields = ['created_at', 'title']  # fields to order the list
+    ordering = ['-created_at']  # default order    
     
     def get_permissions(self):
         if self.request.method in ["POST"]:
@@ -86,27 +87,53 @@ class PostViewSet(viewsets.ModelViewSet):
         if self.request.method in ["PUT","PATCH","DELETE"]:
             post = Post.objects.get(id = self.kwargs['pk'])
             if post.author == self.request.user:
-                return [permissions.IsAuthenticated()] # Para crear un post hay que estar autenticado
+                return [permissions.IsAuthenticated()] # To create a post the user must be authenticated
             else:
                 return [permissions.IsAdminUser()]
         
-        return [permissions.AllowAny()] # Se puede ver la lista de todos los posts sin estar autenticado
+        return [permissions.AllowAny()] # The list of all the posts can be viewed without being authenticated
     
-    # Al crear un nuevo post, se asigna automáticamente al usuario que lo creó
+    # Upon creating a new post, it is assigned automatically to the user who created it
     def perform_create(self, serializer):
-        serializer.save(author = self.request.user)    
+        serializer.save(author = self.request.user)
     
+    # @action is a way to add custom endpoints to a ViewSet
+    # detail=True means that is applied upon one single object (/api/posts/5/like)
+    # In short, this line generates this new action -> POST /api/posts/{pk}/like/
+    @action(detail=True, methods=['post'])
+    def like(self, request, pk = None):
+        post = get_object_or_404(Post, id = pk)
+        user = request.user
+        
+        if post.likes.filter(id = user.id).exists():
+            post.likes.remove(user)
+            return Response({"detail": "Like removed"})
+        else:
+            post.likes.add(user)
+            return Response({"detail": "Like added"})
+        
+    @action(detail=True, methods=['get'])
+    def likes(self, request, pk = None):
+        post = get_object_or_404(Post, id = pk)
+        users = post.likes.all()
+        usernames = [u.username for u in users]
+        
+        return Response({
+            "count": len(usernames),
+            "users": usernames
+        })
+        
     # def get_queryset(self):
     #     return Post.objects.filter(author=self.request.user)
     
 class CommentView(APIView):
-    # Solo se pueden agregar comentarios estando autenticado, pero se pueden ver todos sin estarlo.
+    # Comments can be only added when authenticated, but they are visible for everyone
     def get_permissions(self):
         if self.request.method in ["POST","PUT","PATCH","DELETE"]:
             return [permissions.IsAuthenticated()]
         return [permissions.AllowAny()]
     
-    # Se pasan post_id=None, comment_id=None para que si no están presentes en la URL, la request no falle
+    # Paramenters post_id=None, comment_id=None are passed in order not to get the URL failed if they are not present
     def get(self, request, post_id = None, comment_id = None):
         if comment_id:
             comment = get_object_or_404(Comment, id = comment_id, post = post_id)
