@@ -24,3 +24,6 @@ show_urls:
 
 inspect_db:
 	winpty docker exec -it microblog_api-db-1 psql -U postgres -d postgres
+
+test:
+	docker-compose exec web python manage.py test

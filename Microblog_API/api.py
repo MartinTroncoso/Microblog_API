@@ -58,11 +58,11 @@ class RegisterViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]
     serializer_class = RegisterSerializer
     
-    # Sobreescribimos el método create() del viewset para personalizar la respuesta JSON que se envía al cliente.
+    # viewset's create() method is overwritten to custom the JSON response sent to the client.
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        data = serializer.save()  # Llama al método create() de RegisterSerializer. El serializer devuelve dict con 'user', 'access', 'refresh'
+        data = serializer.save()  # Calls the create() method from RegisterSerializer. The serializer returns dict with 'user', 'access', 'refresh'
 
         return Response({
             'user_id': data['user'].id,
